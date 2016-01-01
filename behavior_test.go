@@ -39,7 +39,7 @@ func TestBehaviourTree(t *testing.T) {
 		&PrintVar{Name: "test"},
 		Sequence(
 			&SetVar{Name: "test", Val: "that"},
-			&PrintVar{Name: "test"},
+			Repeater(&PrintVar{Name: "test"}, 5),
 		),
 	)
 
