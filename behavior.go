@@ -1,10 +1,13 @@
 // behavior project behavior.go
 package behavior
 
-type Result struct {
-	Complete bool
-	Failed   bool
-}
+type Result int
+
+const (
+	RUNNING Result = iota
+	SUCCESS
+	FAILURE
+)
 
 type Behavior interface {
 	Init() BehaviorData

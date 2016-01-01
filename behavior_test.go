@@ -11,7 +11,7 @@ type PrintVar struct {
 
 func (pb *PrintVar) Step(r *Runner, bd BehaviorData) (Result, BehaviorData) {
 	fmt.Println(r.Var(pb.Name))
-	return Result{Complete: true}, nil
+	return SUCCESS, nil
 }
 
 func (pb *PrintVar) Init() BehaviorData {
@@ -25,7 +25,7 @@ type SetVar struct {
 
 func (pb *SetVar) Step(r *Runner, bd BehaviorData) (Result, BehaviorData) {
 	r.SetVar(pb.Name, pb.Val)
-	return Result{Complete: true}, nil
+	return SUCCESS, nil
 }
 
 func (pb *SetVar) Init() BehaviorData {
@@ -46,7 +46,7 @@ func TestBehaviourTree(t *testing.T) {
 	runner := NewRunner(simpleTree)
 
 	res := runner.Step()
-	for !res.Complete {
+	for res == RUNNING {
 		res = runner.Step()
 	}
 }

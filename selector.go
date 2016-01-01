@@ -16,16 +16,16 @@ func (s *selector) Init() BehaviorData {
 func (s *selector) Step(r *Runner, bd BehaviorData) (Result, BehaviorData) {
 	d := bd.(*selectorState)
 	result := r.Next(s.Choices[d.choice])
-	if result.Complete {
-		return Result{Complete: true}, d
+	if result == SUCCESS {
+		return SUCCESS, d
 	}
-	if result.Failed {
+	if result == FAILURE {
 		d.choice++
 		if d.choice >= len(s.Choices) {
-			return Result{Failed: true}, d
+			return FAILURE, d
 		}
 	}
-	return Result{}, d
+	return RUNNING, d
 }
 
 func Selector(Choices ...Behavior) Behavior {

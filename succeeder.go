@@ -10,10 +10,10 @@ func (i *succeeder) Init() BehaviorData {
 
 func (i *succeeder) Step(r *Runner, bd BehaviorData) (Result, BehaviorData) {
 	result := r.Next(i.Child)
-	if result.Complete || result.Failed {
-		return Result{Complete: true}, nil
+	if result == SUCCESS || result == FAILURE {
+		return SUCCESS, nil
 	}
-	return Result{}, nil
+	return RUNNING, nil
 }
 
 func Succeeder(Child Behavior) Behavior {

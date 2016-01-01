@@ -31,7 +31,7 @@ func (r *Runner) Next(b Behavior) (res Result) {
 	r.stackDepth++
 	res, bd = b.Step(r, bd)
 	r.stackDepth--
-	if res.Failed || res.Complete {
+	if res == FAILURE || res == SUCCESS {
 		r.stack = r.stack[:r.stackDepth]
 	} else {
 		r.stack[r.stackDepth] = bd

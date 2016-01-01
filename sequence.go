@@ -16,16 +16,16 @@ func (s *sequence) Init() BehaviorData {
 func (s *sequence) Step(r *Runner, bd BehaviorData) (Result, BehaviorData) {
 	d := bd.(*sequenceState)
 	result := r.Next(s.Steps[d.step])
-	if result.Complete {
+	if result == SUCCESS {
 		d.step++
 		if d.step >= len(s.Steps) {
-			return Result{Complete: true}, d
+			return SUCCESS, d
 		}
 	}
-	if result.Failed {
-		return Result{Failed: true}, d
+	if result == FAILURE {
+		return FAILURE, d
 	}
-	return Result{}, d
+	return RUNNING, d
 }
 
 func Sequence(Steps ...Behavior) Behavior {
