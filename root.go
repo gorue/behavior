@@ -2,40 +2,68 @@ package behavior
 
 import "sync"
 
+type behaviorDataTreeStack struct {
+	Nodes []*behaviorDataTreeStack
+	Data  BehaviorData
+}
+
 type Runner struct {
-	b          Behavior
-	bd         BehaviorData
-	vars       map[string]interface{}
-	varlock    sync.Mutex
-	stack      []BehaviorData
-	stackDepth int
+	b             Behavior
+	vars          map[string]interface{}
+	varlock       sync.Mutex
+	dataTree      *behaviorDataTreeStack
+	dataTreeStack *behaviorDataTreeStack
+	stack         Behavior
 }
 
 func NewRunner(b Behavior) *Runner {
+	dt := &behaviorDataTreeStack{}
 	return &Runner{
-		b:    b,
-		bd:   b.Init(),
-		vars: make(map[string]interface{}),
+		b:        b,
+		dataTree: dt,
+		vars:     make(map[string]interface{}),
 	}
 }
 
 func (r *Runner) Step() Result {
-	return r.Next(r.b)
+	return r.Next(0)
 }
 
-func (r *Runner) Next(b Behavior) (res Result) {
-	if r.stackDepth >= len(r.stack) {
-		r.stack = append(r.stack, b.Init())
-	}
-	bd := r.stack[r.stackDepth]
-	r.stackDepth++
-	res, bd = b.Step(r, bd)
-	r.stackDepth--
-	if res == FAILURE || res == SUCCESS {
-		r.stack = r.stack[:r.stackDepth]
+func (r *Runner) Next(i int) (res Result) {
+	preStack := r.stack
+	preDataStack := r.dataTreeStack
+	var b Behavior
+	var bds *behaviorDataTreeStack
+	if preStack == nil {
+		b = r.b
+		bds = r.dataTree
 	} else {
-		r.stack[r.stackDepth] = bd
+		bp := preStack.(BehaviorParent)
+		b = bp.Child(i)
+		if preDataStack.Nodes == nil {
+			preDataStack.Nodes = make([]*behaviorDataTreeStack, bp.NumChild())
+		}
+		bds = preDataStack.Nodes[i]
+		if bds == nil {
+			bds = &behaviorDataTreeStack{}
+			preDataStack.Nodes[i] = bds
+		}
 	}
+	r.stack = b
+	r.dataTreeStack = bds
+
+	if bds.Data == nil {
+		bds.Data = b.Init()
+	}
+
+	res, bds.Data = b.Step(r, bds.Data)
+
+	if res != RUNNING {
+		bds.Data = nil
+	}
+
+	r.dataTreeStack = preDataStack
+	r.stack = preStack
 	return
 }
 

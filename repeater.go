@@ -1,7 +1,7 @@
 package behavior
 
 type repeater struct {
-	Child    Behavior
+	BehaviorParent
 	MaxCount int64
 }
 
@@ -11,7 +11,7 @@ func (r *repeater) Init() BehaviorData {
 
 func (r *repeater) Step(run *Runner, bd BehaviorData) (Result, BehaviorData) {
 	d := bd.(int64)
-	result := run.Next(r.Child)
+	result := run.Next(0)
 	if result == SUCCESS || result == FAILURE {
 		d++
 		if d >= r.MaxCount && r.MaxCount != 0 {
@@ -23,7 +23,7 @@ func (r *repeater) Step(run *Runner, bd BehaviorData) (Result, BehaviorData) {
 
 func Repeater(Child Behavior, maxCount int64) Behavior {
 	return &repeater{
-		Child:    Child,
-		MaxCount: maxCount,
+		BehaviorParent: Children(Child),
+		MaxCount:       maxCount,
 	}
 }

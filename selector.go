@@ -1,35 +1,34 @@
 package behavior
 
 type selector struct {
-	Choices []Behavior
-}
-
-type selectorState struct {
-	choice int
+	BehaviorParent
 }
 
 func (s *selector) Init() BehaviorData {
-	bd := &selectorState{}
-	return bd
+	return nil
 }
 
 func (s *selector) Step(r *Runner, bd BehaviorData) (Result, BehaviorData) {
-	d := bd.(*selectorState)
-	result := r.Next(s.Choices[d.choice])
-	if result == SUCCESS {
-		return SUCCESS, d
-	}
-	if result == FAILURE {
-		d.choice++
-		if d.choice >= len(s.Choices) {
-			return FAILURE, d
+	d := 0
+	for {
+		result := r.Next(d)
+		switch result {
+		case SUCCESS:
+			return SUCCESS, nil
+		case FAILURE:
+			d++
+			if d >= s.NumChild() {
+				return FAILURE, nil
+			}
+		case RUNNING:
+			return RUNNING, nil
 		}
 	}
-	return RUNNING, d
+	return FAILURE, nil
 }
 
 func Selector(Choices ...Behavior) Behavior {
 	return &selector{
-		Choices: Choices,
+		BehaviorParent: Children(Choices...),
 	}
 }

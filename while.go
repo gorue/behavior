@@ -1,7 +1,7 @@
 package behavior
 
 type while struct {
-	Children []Behavior
+	BehaviorParent
 }
 
 func (w *while) Init() BehaviorData {
@@ -10,7 +10,7 @@ func (w *while) Init() BehaviorData {
 
 func (w *while) Step(run *Runner, bd BehaviorData) (Result, BehaviorData) {
 	d := bd.(int)
-	result := run.Next(w.Children[d])
+	result := run.Next(d)
 	if d == 0 {
 		if result == FAILURE {
 			return FAILURE, d
@@ -21,15 +21,15 @@ func (w *while) Step(run *Runner, bd BehaviorData) (Result, BehaviorData) {
 	}
 	if result == SUCCESS {
 		d++
-		if d >= len(w.Children) {
+		if d >= w.NumChild() {
 			return SUCCESS, d
 		}
 	}
 	return RUNNING, d
 }
 
-func While(Condition Behavior, Children ...Behavior) Behavior {
+func While(Condition Behavior, Child ...Behavior) Behavior {
 	return &while{
-		Children: append([]Behavior{Condition}, Children...),
+		BehaviorParent: Children(append([]Behavior{Condition}, Child...)...),
 	}
 }

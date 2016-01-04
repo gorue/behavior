@@ -1,35 +1,34 @@
 package behavior
 
 type sequence struct {
-	Steps []Behavior
-}
-
-type sequenceState struct {
-	step int
+	BehaviorParent
 }
 
 func (s *sequence) Init() BehaviorData {
-	bd := &sequenceState{}
-	return bd
+	return nil
 }
 
 func (s *sequence) Step(r *Runner, bd BehaviorData) (Result, BehaviorData) {
-	d := bd.(*sequenceState)
-	result := r.Next(s.Steps[d.step])
-	if result == SUCCESS {
-		d.step++
-		if d.step >= len(s.Steps) {
-			return SUCCESS, d
+	d := 0
+	for {
+		result := r.Next(d)
+		switch result {
+		case SUCCESS:
+			d++
+			if d >= s.NumChild() {
+				return SUCCESS, nil
+			}
+		case FAILURE:
+			return FAILURE, nil
+		case RUNNING:
+			return RUNNING, nil
 		}
 	}
-	if result == FAILURE {
-		return FAILURE, d
-	}
-	return RUNNING, d
+	return FAILURE, nil
 }
 
 func Sequence(Steps ...Behavior) Behavior {
 	return &sequence{
-		Steps: Steps,
+		BehaviorParent: Children(Steps...),
 	}
 }

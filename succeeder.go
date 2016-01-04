@@ -1,7 +1,7 @@
 package behavior
 
 type succeeder struct {
-	Child Behavior
+	BehaviorParent
 }
 
 func (i *succeeder) Init() BehaviorData {
@@ -9,7 +9,7 @@ func (i *succeeder) Init() BehaviorData {
 }
 
 func (i *succeeder) Step(r *Runner, bd BehaviorData) (Result, BehaviorData) {
-	result := r.Next(i.Child)
+	result := r.Next(0)
 	if result == SUCCESS || result == FAILURE {
 		return SUCCESS, nil
 	}
@@ -18,6 +18,6 @@ func (i *succeeder) Step(r *Runner, bd BehaviorData) (Result, BehaviorData) {
 
 func Succeeder(Child Behavior) Behavior {
 	return &succeeder{
-		Child: Child,
+		BehaviorParent: Children(Child),
 	}
 }

@@ -1,7 +1,7 @@
 package behavior
 
 type untilFail struct {
-	Child Behavior
+	BehaviorParent
 }
 
 func (r *untilFail) Init() BehaviorData {
@@ -9,7 +9,7 @@ func (r *untilFail) Init() BehaviorData {
 }
 
 func (r *untilFail) Step(run *Runner, bd BehaviorData) (Result, BehaviorData) {
-	result := run.Next(r.Child)
+	result := run.Next(0)
 	if result == FAILURE {
 		return SUCCESS, nil
 	}
@@ -18,6 +18,6 @@ func (r *untilFail) Step(run *Runner, bd BehaviorData) (Result, BehaviorData) {
 
 func UntilFail(Child Behavior) Behavior {
 	return &untilFail{
-		Child: Child,
+		BehaviorParent: Children(Child),
 	}
 }

@@ -1,7 +1,7 @@
 package behavior
 
 type inverter struct {
-	Child Behavior
+	BehaviorParent
 }
 
 func (i *inverter) Init() BehaviorData {
@@ -9,7 +9,7 @@ func (i *inverter) Init() BehaviorData {
 }
 
 func (i *inverter) Step(r *Runner, bd BehaviorData) (Result, BehaviorData) {
-	result := r.Next(i.Child)
+	result := r.Next(0)
 	if result == SUCCESS {
 		return FAILURE, nil
 	}
@@ -21,6 +21,6 @@ func (i *inverter) Step(r *Runner, bd BehaviorData) (Result, BehaviorData) {
 
 func Inverter(Child Behavior) Behavior {
 	return &inverter{
-		Child: Child,
+		BehaviorParent: Children(Child),
 	}
 }
